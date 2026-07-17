@@ -1,1 +1,0 @@
-$(function(){$("input,textarea").jqBootstrapValidation({preventSubmit:!0,submitError:function(t,i,n){},filter:function(){return $(this).is(":visible")}}),$('a[data-toggle="tab"]').click(function(t){t.preventDefault(),$(this).tab("show")})}),$("#name").focus(function(){$("#success").html("")});
