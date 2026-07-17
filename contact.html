@@ -117,7 +117,7 @@
     <section style="padding-top:3rem;">
       <div class="container contact-grid">
         <div class="form-card reveal">
-          <form action="https://formspree.io/f/mzbqqprk" method="POST" id="contactForm" novalidate>
+          <form action="https://formspree.io/f/mzbqqprk" method="POST" id="contactForm">
             <div class="field">
               <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
               <input type="text" name="name" id="name" placeholder="Your name" required autocomplete="name" />
@@ -125,7 +125,7 @@
 
             <div class="field">
               <label for="email">Email address <span class="req" aria-hidden="true">*</span></label>
-              <input type="email" name="_replyto" id="email" placeholder="you@example.com" required autocomplete="email" />
+              <input type="email" name="_replyto" id="email" placeholder="you@example.com" required autocomplete="email" inputmode="email" />
             </div>
 
             <div class="field">

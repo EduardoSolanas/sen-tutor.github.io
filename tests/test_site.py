@@ -840,6 +840,30 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             r'href="https://formspree\.io/(?:legal/)?privacy(?:-policy)?/?"',
         )
 
+    def test_contact_form_uses_native_email_validation_and_mobile_keyboard_hint(self):
+        class ContactFormParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.contact_form = None
+                self.email_input = None
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == "form" and attributes.get("id") == "contactForm":
+                    self.contact_form = attributes
+                if tag == "input" and attributes.get("id") == "email":
+                    self.email_input = attributes
+
+        parser = ContactFormParser()
+        parser.feed((ROOT / "contact.html").read_text(encoding="utf-8"))
+        self.assertIsNotNone(parser.contact_form)
+        self.assertNotIn("novalidate", parser.contact_form)
+        self.assertIsNotNone(parser.email_input)
+        self.assertEqual("email", parser.email_input.get("type"))
+        self.assertIn("required", parser.email_input)
+        self.assertEqual("email", parser.email_input.get("autocomplete"))
+        self.assertEqual("email", parser.email_input.get("inputmode"))
+
     def test_about_experience_is_a_readable_professional_editorial_section(self):
         about = (ROOT / "about.html").read_text(encoding="utf-8")
         stylesheet = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
