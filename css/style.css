@@ -456,7 +456,6 @@ body.dialog-open { overflow: hidden; }
 #skill-visual { --skill-a: #947000; --skill-b: #FFF4C9; }
 #skill-social { --skill-a: #167A94; --skill-b: #DDF5FA; }
 #skill-other { --skill-a: #4169A8; --skill-b: #E2EDFF; }
-.coming-soon { padding: 1.25rem 1.4rem; background: #FFF4D6; border-left: 6px solid var(--sun); border-radius: 0 var(--r-md) var(--r-md) 0; }
 .skill-dialog-close { display: flex; margin: 0 auto; }
 
 /* ---------- steps ---------- */

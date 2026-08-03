@@ -451,9 +451,9 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
     def test_skills_preserve_original_content_and_use_unique_topic_illustrations(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")
         for original_text in (
-            "Over the last 14 years, my career has been dedicated",
+            "Over the last 15 years, my career has been dedicated",
             "Dyslexia Specialism:",
-            "Utilizing tools such as speech-to-text",
+            "Utilising tools such as speech-to-text",
             "Throughout my specialist training, I acquired extensive knowledge",
             "The Incredible 5-Point Scale",
             "Building Confidence and Self-Esteem:",
@@ -461,7 +461,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             "Working with Partially Visually Impaired Students:",
             "Supporting Students with Social Communication Challenges:",
             "Supporting Students with Processing Difficulties:",
-            "Content coming soon",
+            "Dyscalculia Specialism:",
         ):
             with self.subTest(text=original_text):
                 self.assertIn(original_text, homepage)
@@ -490,7 +490,9 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         self.assertEqual(11, homepage.count('class="skill-at-glance"'))
         self.assertEqual(11, homepage.count(" at a glance</h3>"))
         self.assertGreaterEqual(homepage.count('class="skill-content-card"'), 10)
-        self.assertIn("Content coming soon", homepage)
+        # Every panel now carries real content; no placeholders remain.
+        self.assertNotIn("Content coming soon", homepage)
+        self.assertNotIn("coming-soon", homepage)
 
     def test_number_playground_and_all_game_only_code_are_removed(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -915,7 +917,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         plain_text = re.sub(r"\s+", " ", plain_text)
 
         factual_anchors = (
-            r"14 years", r"5 to 16", r"KS1", r"KS4", r"mainstream", r"specialized",
+            r"15 years", r"5 to 18", r"KS1", r"KS5", r"mainstream", r"specialised",
             r"English", r"Mathematics", r"Science", r"educational psychologists",
             r"occupational therapists", r"speech and language therapists",
             r"parental (?:engagement|involvement)", r"good or outstanding",
@@ -1014,6 +1016,62 @@ class SeoHardeningTests(unittest.TestCase):
         ]
         self.assertNotIn(f"{PRODUCTION_ORIGIN}/404", locations)
         self.assertNotIn(f"{PRODUCTION_ORIGIN}/404.html", locations)
+
+    def test_credentials_are_fully_listed_with_their_issuers(self):
+        person = next(
+            node for node in self.graph("index.html") if node.get("@type") == "Person"
+        )
+        credentials = {item["name"]: item for item in person["hasCredential"]}
+        expected = {
+            "QTS (Qualified Teacher Status)": None,
+            "OCR Level 5 Diploma": "Fairley House School, London",
+            "Level 3 Diploma": "ELKLAN, London",
+            "CELTA": "International House, London",
+            "BA (Hons) English and French": None,
+            "MA History of Art": None,
+        }
+        self.assertEqual(set(expected), set(credentials))
+        for name, issuer in expected.items():
+            with self.subTest(credential=name):
+                self.assertEqual(
+                    "EducationalOccupationalCredential", credentials[name]["@type"]
+                )
+                if issuer is not None:
+                    self.assertEqual(issuer, credentials[name]["recognizedBy"]["name"])
+
+        # Every credential on the About page must appear in the graph.
+        about = (ROOT / "about.html").read_text(encoding="utf-8")
+        for name in ("BA (Hons)", "MA", "Fairley House", "ELKLAN", "International House"):
+            with self.subTest(shown=name):
+                self.assertIn(name, about)
+
+    def test_prose_uses_british_spellings(self):
+        american = re.compile(
+            r"\b\w*(?:iz(?:e|ed|es|ing|ation)|behavior|favorite)\w*\b", re.I
+        )
+        for page_name in (*PAGES, "404.html"):
+            source = (ROOT / page_name).read_text(encoding="utf-8")
+            # schema.org vocabulary (recognizedBy, EducationalOrganization) is a
+            # fixed API spelling, so JSON-LD is excluded and only prose checked.
+            source = re.sub(r"<script\b.*?</script>", " ", source, flags=re.S)
+            prose = re.sub(r"<[^>]+>", " ", source)
+            with self.subTest(page=page_name):
+                self.assertEqual([], american.findall(prose))
+
+    def test_every_page_offers_an_apple_touch_icon(self):
+        icon = ROOT / "images" / "apple-touch-icon.png"
+        self.assertTrue(icon.is_file())
+        # iOS ignores SVG touch icons, so this must stay a real PNG.
+        self.assertEqual(b"\x89PNG\r\n\x1a\n", icon.read_bytes()[:8])
+
+        for page_name in (*PAGES, "404.html"):
+            parser = MetadataParser()
+            parser.feed((ROOT / page_name).read_text(encoding="utf-8"))
+            links = parser.link("apple-touch-icon")
+            with self.subTest(page=page_name):
+                self.assertEqual(1, len(links))
+                self.assertEqual("/images/apple-touch-icon.png", links[0].get("href"))
+                self.assertEqual("180x180", links[0].get("sizes"))
 
     def test_internal_links_use_clean_urls_and_never_redirect(self):
         # /about.html 308-redirects to /about in production, so linking to the
