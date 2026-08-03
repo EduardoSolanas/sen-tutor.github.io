@@ -513,6 +513,16 @@ body.dialog-open { overflow: hidden; }
 .t-card figcaption b { display: block; font-family: var(--font-display); font-size: 1.1rem; }
 .t-card figcaption small { color: var(--ink-soft); }
 
+/* ---------- FAQ ---------- */
+.faq-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+.faq-item {
+  background: var(--surface); border: 2px solid var(--line);
+  border-radius: var(--r-lg); padding: 1.6rem 1.7rem;
+  box-shadow: var(--shadow-pop);
+}
+.faq-item h3 { margin-bottom: 0.5rem; }
+.faq-item p { color: var(--ink-soft); margin: 0; }
+
 /* ---------- CTA banner ---------- */
 .cta-banner {
   background: linear-gradient(120deg, #FFC08A 0%, #FFD16A 55%, var(--sun) 100%);
@@ -714,6 +724,7 @@ html.calm .float-field { display: none; }
   .contact-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .testimonials-grid { grid-template-columns: 1fr; }
+  .faq-list { grid-template-columns: 1fr; }
   .philo-story-grid { grid-template-columns: 1fr; }
   .main-nav {
     position: fixed; inset: 82px 4% auto 4%;

@@ -79,11 +79,49 @@ class MetadataParser(HTMLParser):
         ]
 
 
+class HeadingParser(HTMLParser):
+    LEVELS = {"h1", "h2", "h3", "h4", "h5", "h6"}
+
+    def __init__(self):
+        super().__init__()
+        self.headings = []
+        self._depth = 0
+        self._parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.LEVELS:
+            self._depth += 1
+
+    def handle_endtag(self, tag):
+        if tag in self.LEVELS and self._depth:
+            self._depth -= 1
+            if not self._depth:
+                self.headings.append(" ".join("".join(self._parts).split()))
+                self._parts = []
+
+    def handle_data(self, data):
+        if self._depth:
+            self._parts.append(data)
+
+
+def collect_headings(page):
+    parser = HeadingParser()
+    parser.feed(page.read_text(encoding="utf-8"))
+    return parser.headings
+
+
+CLEAN_URLS = {"/": "index.html", "/about": "about.html", "/contact": "contact.html"}
+
+
 def local_target(page, reference):
     parsed = urlsplit(reference)
     if parsed.scheme or parsed.netloc or reference.startswith(("data:", "mailto:", "tel:")):
         return None
     path = unquote(parsed.path)
+    if path in CLEAN_URLS:
+        return (ROOT / CLEAN_URLS[path]).resolve(), parsed.fragment
+    if path.startswith("/"):
+        return (ROOT / path.lstrip("/")).resolve(), parsed.fragment
     target = (page.parent / path).resolve() if path else page.resolve()
     return target, parsed.fragment
 
@@ -450,7 +488,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
     def test_all_skill_dialogs_have_scannable_summaries_and_sections(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertEqual(11, homepage.count('class="skill-at-glance"'))
-        self.assertEqual(11, homepage.count('>At a glance<'))
+        self.assertEqual(11, homepage.count(" at a glance</h3>"))
         self.assertGreaterEqual(homepage.count('class="skill-content-card"'), 10)
         self.assertIn("Content coming soon", homepage)
 
@@ -564,7 +602,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         self.assertTrue(nav_breakpoints, "mobile navigation needs a responsive breakpoint")
         self.assertGreaterEqual(max(nav_breakpoints), 900)
 
-        expected_order = ("philosophy", "how-to-start", "skills", "testimonials", "about.html", "contact.html")
+        expected_order = ("philosophy", "how-to-start", "skills", "testimonials", "/about", "/contact")
         for page_name in PAGES:
             page = (ROOT / page_name).read_text(encoding="utf-8")
             nav = re.search(r'<nav class="main-nav".*?</nav>', page, re.S).group(0)
@@ -743,6 +781,8 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             graphs[page_name] = document["@graph"]
 
             serialized = json.dumps(document)
+            # Tuition is online and not limited to one country, so the graph
+            # states no geography at all rather than narrowing the audience.
             for forbidden in ("address", "telephone", "email", "geo", "priceRange", "openingHours", "areaServed"):
                 self.assertNotRegex(serialized, rf'"{forbidden}"\s*:')
             for node in document["@graph"]:
@@ -810,7 +850,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         for entry in urls:
             fields = {child.tag.rsplit("}", 1)[-1]: child.text for child in entry}
             self.assertEqual({"loc", "lastmod"}, set(fields))
-            self.assertEqual("2026-07-17", fields["lastmod"])
+            self.assertEqual("2026-08-03", fields["lastmod"])
             locations.append(fields["loc"])
         self.assertEqual(expected, locations)
 
@@ -937,6 +977,139 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             stylesheet,
             r"\.skill-at-glance\s+ul\s*\{[^}]*\blist-style-position:\s*inside\s*;",
         )
+
+
+class SeoHardeningTests(unittest.TestCase):
+    def graph(self, page_name):
+        source = (ROOT / page_name).read_text(encoding="utf-8")
+        blocks = re.findall(
+            r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL
+        )
+        self.assertEqual(1, len(blocks), f"{page_name} must have exactly one JSON-LD block")
+        return json.loads(blocks[0])["@graph"]
+
+    def test_missing_urls_get_a_real_noindex_404_page(self):
+        page = ROOT / "404.html"
+        self.assertTrue(page.is_file(), "404.html is required or the host serves a soft 404")
+        source = page.read_text(encoding="utf-8")
+        self.assertTrue(source.lstrip().lower().startswith("<!doctype html>"))
+
+        parser = MetadataParser()
+        parser.feed(source)
+        robots = [meta for meta in parser.metas if meta.get("name") == "robots"]
+        self.assertEqual(1, len(robots))
+        self.assertIn("noindex", robots[0].get("content", ""))
+
+        # A 404 must not claim to be another page, or it re-creates the soft 404.
+        self.assertEqual([], [link for link in parser.links if link.get("rel") == "canonical"])
+
+        self.assertIn('href="/"', source, "the 404 page must offer a route home")
+
+        sitemap = ET.parse(ROOT / "sitemap.xml").getroot()
+        locations = [
+            child.text
+            for entry in sitemap
+            for child in entry
+            if child.tag.rsplit("}", 1)[-1] == "loc"
+        ]
+        self.assertNotIn(f"{PRODUCTION_ORIGIN}/404", locations)
+        self.assertNotIn(f"{PRODUCTION_ORIGIN}/404.html", locations)
+
+    def test_internal_links_use_clean_urls_and_never_redirect(self):
+        # /about.html 308-redirects to /about in production, so linking to the
+        # .html form makes every internal link cost an extra hop.
+        failures = []
+        for page_name in (*PAGES, "404.html"):
+            parser = ReferenceParser()
+            parser.feed((ROOT / page_name).read_text(encoding="utf-8"))
+            for reference in parser.references:
+                parsed = urlsplit(reference)
+                if parsed.scheme or parsed.netloc:
+                    continue
+                if parsed.path.endswith(".html"):
+                    failures.append(f"{page_name}: {reference}")
+        self.assertEqual([], failures, "\n".join(failures))
+
+    def test_every_page_links_to_the_canonical_form_of_its_siblings(self):
+        for page_name in PAGES:
+            parser = ReferenceParser()
+            parser.feed((ROOT / page_name).read_text(encoding="utf-8"))
+            paths = {urlsplit(reference).path for reference in parser.references}
+            with self.subTest(page=page_name):
+                self.assertTrue(
+                    {"/about", "/contact"} <= paths,
+                    f"{page_name} should link to /about and /contact",
+                )
+
+    def test_heading_text_is_unique_within_each_page(self):
+        for page_name in (*PAGES, "404.html"):
+            headings = collect_headings(ROOT / page_name)
+            duplicates = sorted({text for text in headings if headings.count(text) > 1})
+            with self.subTest(page=page_name):
+                self.assertEqual([], duplicates, f"{page_name} repeats {duplicates}")
+
+    def test_each_skill_panel_names_itself_in_its_summary_heading(self):
+        headings = collect_headings(ROOT / "index.html")
+        for title in ModernSiteAcceptanceTests.SKILL_TITLES:
+            with self.subTest(skill=title):
+                self.assertIn(f"{title} at a glance", headings)
+
+    def test_font_stylesheet_does_not_block_first_paint(self):
+        for page_name in (*PAGES, "404.html"):
+            source = (ROOT / page_name).read_text(encoding="utf-8")
+            with self.subTest(page=page_name):
+                if "fonts.googleapis.com/css2" not in source:
+                    continue
+                tag = re.search(r"<link[^>]*fonts\.googleapis\.com/css2[^>]*>", source)
+                self.assertIsNotNone(tag)
+                markup = tag.group(0)
+                self.assertIn('media="print"', markup)
+                self.assertIn("this.media='all'", markup)
+                self.assertRegex(source, r"<noscript>\s*<link[^>]*fonts\.googleapis\.com/css2")
+
+    def test_homepage_faq_copy_and_faqpage_schema_stay_in_step(self):
+        source = (ROOT / "index.html").read_text(encoding="utf-8")
+        faq_nodes = [node for node in self.graph("index.html") if node.get("@type") == "FAQPage"]
+        self.assertEqual(1, len(faq_nodes), "the homepage needs exactly one FAQPage node")
+        questions = faq_nodes[0]["mainEntity"]
+        self.assertGreaterEqual(len(questions), 4)
+
+        self.assertIn('id="faq"', source)
+        for entry in questions:
+            self.assertEqual("Question", entry["@type"])
+            answer = entry["acceptedAnswer"]
+            self.assertEqual("Answer", answer["@type"])
+            with self.subTest(question=entry["name"]):
+                # Google requires the marked-up answer to be visible on the page.
+                self.assertIn(entry["name"], source)
+                self.assertIn(answer["text"], source)
+
+    def test_faqpage_is_connected_to_the_homepage_graph(self):
+        graph = self.graph("index.html")
+        faq = next(node for node in graph if node.get("@type") == "FAQPage")
+        self.assertEqual(f"{PRODUCTION_ORIGIN}/#faq", faq["@id"])
+        self.assertEqual({"@id": f"{PRODUCTION_ORIGIN}/#webpage"}, faq["isPartOf"])
+
+    def test_tuition_is_marked_up_as_online_with_no_country_limit(self):
+        service = next(
+            node for node in self.graph("index.html") if node.get("@type") == "Service"
+        )
+        # Online delivery means no geographic restriction should be claimed;
+        # naming a country would narrow the audience for no benefit.
+        self.assertNotIn("areaServed", service)
+        channel = service["availableChannel"]
+        self.assertEqual("ServiceChannel", channel["@type"])
+        self.assertEqual(f"{PRODUCTION_ORIGIN}/contact", channel["serviceUrl"])
+
+    def test_no_page_claims_a_physical_location(self):
+        # Tuition is delivered online only; inventing geo signals would be a
+        # misrepresentation and Google penalises it.
+        forbidden = ("LocalBusiness", "PostalAddress", "GeoCoordinates", "addressLocality")
+        for page_name in (*PAGES, "404.html"):
+            source = (ROOT / page_name).read_text(encoding="utf-8")
+            for term in forbidden:
+                with self.subTest(page=page_name, term=term):
+                    self.assertNotIn(term, source)
 
 
 if __name__ == "__main__":

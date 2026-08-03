@@ -90,11 +90,80 @@
           "serviceType": "Specialist SEN tuition in English and Maths",
           "description": "Specialist tuition for children with dyslexia, dyscalculia, dyspraxia, ADHD and autism in English and Maths.",
           "provider": { "@id": "https://www.sen-tutor.co.uk/#person" },
+          "availableChannel": {
+            "@type": "ServiceChannel",
+            "serviceUrl": "https://www.sen-tutor.co.uk/contact",
+            "availableLanguage": { "@type": "Language", "name": "English" }
+          },
           "audience": {
             "@type": "EducationalAudience",
             "audienceType": "Children and adolescents aged 5 to 16",
             "educationalRole": "student"
           }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://www.sen-tutor.co.uk/#faq",
+          "isPartOf": { "@id": "https://www.sen-tutor.co.uk/#webpage" },
+          "inLanguage": "en-GB",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What age range does Eva tutor?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Eva supports children and adolescents aged 5 to 16, covering communication, memory, phonics, reading, spelling and foundational skills in literacy and numeracy."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Which special educational needs does Eva support?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Eva has specialist training in dyslexia, dyspraxia, dyscalculia, ADHD, autism, anxiety, executive functioning, visual impairment and social communication needs."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are the tuition sessions online?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Tuition is delivered online using video-conferencing tools, with screen sharing used for games, quizzes and shared activities during the session."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can Eva tutor British families living abroad?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Because sessions run online, Eva can support UK families overseas who want to keep their child on the British curriculum, from Key Stage 1 through to 11+ and GCSE."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What qualifications does Eva hold?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Eva holds QTS (Qualified Teacher Status), an OCR Level 5 Diploma, a Level 3 Diploma and CELTA, alongside 14 years of specialist teaching experience."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Which subjects can Eva help with?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Eva teaches English and Maths, including 11+ and GCSE preparation, and supports study skills such as planning, structured writing and revision."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I arrange a first session?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Fill in the contact form with a little about your child. Eva will then arrange a free consultation to discuss your case, with no pressure and no jargon, before agreeing tailored sessions."
+              }
+            }
+          ]
         }
       ]
     }
@@ -102,7 +171,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all';this.onload=null" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" /></noscript>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -111,7 +181,7 @@
   <!-- ================= header ================= -->
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="SEN Tutor Eva — home">
+      <a class="brand" href="/" aria-label="SEN Tutor Eva — home">
         <span class="brand-badge" aria-hidden="true">
           <svg viewBox="0 0 100 100"><path d="M50 8 L61.5 39 L94 39 L68 59 L78.5 91 L50 70.5 L21.5 91 L32 59 L6 39 L38.5 39 Z" fill="#fff"/></svg>
         </span>
@@ -123,8 +193,8 @@
         <a href="#how-to-start">How to start</a>
         <a href="#skills">Skills</a>
         <a href="#testimonials">Testimonials</a>
-        <a href="about.html">About</a>
-        <a class="nav-cta" href="contact.html">Say hello 👋</a>
+        <a href="/about">About</a>
+        <a class="nav-cta" href="/contact">Say hello 👋</a>
       </nav>
 
       <button class="calm-toggle" type="button" aria-pressed="false" aria-label="Turn calm mode on" title="Turn animations off for a calmer visit">
@@ -148,7 +218,7 @@
             find confidence, reassurance and the motivation to learn.
           </p>
           <div class="hero-actions reveal d3">
-            <a class="btn btn-primary" href="contact.html">Start with a free chat <span class="arrow" aria-hidden="true">➜</span></a>
+            <a class="btn btn-primary" href="/contact">Start with a free chat <span class="arrow" aria-hidden="true">➜</span></a>
             <a class="btn btn-ghost" href="#skills">Explore SEN support</a>
           </div>
           <p class="hero-note reveal d4">
@@ -185,7 +255,7 @@
           </article>
           <article class="help-card reveal d2">
             <span class="icon i-grape" aria-hidden="true">🧩</span>
-            <h3>Autism</h3>
+            <h3>Autistic learners</h3>
             <p>Your child is autistic and deserves teaching that truly fits.</p>
           </article>
           <article class="help-card reveal d3">
@@ -387,7 +457,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-general-title">General SEN</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="General SEN summary"><h3>At a glance</h3><ul><li>Support for ages 5 to 16 across literacy, numeracy and communication.</li><li>Specialist training across a range of learning differences.</li><li>Open collaboration with parents and other professionals.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="General SEN summary"><h3>General SEN at a glance</h3><ul><li>Support for ages 5 to 16 across literacy, numeracy and communication.</li><li>Specialist training across a range of learning differences.</li><li>Open collaboration with parents and other professionals.</li></ul></aside>
           <article class="skill-content-card"><h3>Experience and approach</h3>
           <p>Over the last 14 years, my career has been dedicated to assisting children and adolescents aged 5 to 16 who face challenges in learning. This includes support in areas like communication, memory, phonics, reading, spelling, and foundational skills in literacy and numeracy, across subjects such as English, Mathematics, Science, among others when applicable.</p>
           <p>My professional journey includes teaching and observing in both elementary and high school environments, providing education to students with special educational needs (SEN) in diverse settings, including mainstream schools and specialized institutions. My expertise is grounded in specialized training for addressing specific learning disorders such as dyslexia, dyspraxia, dyscalculia, ADHD, and speech and language issues. This expertise is complemented by my extensive collaboration with educational psychologists, occupational therapists, speech and language therapists, and various school-based professionals.</p>
@@ -406,7 +476,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-dyslexia-title">Dyslexia</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Dyslexia summary"><h3>At a glance</h3><ul><li>Assessment-led, multisensory and systematically structured plans.</li><li>Assistive technology and practical writing support.</li><li>Relevant topics shaped around each student's interests.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Dyslexia summary"><h3>Dyslexia at a glance</h3><ul><li>Assessment-led, multisensory and systematically structured plans.</li><li>Assistive technology and practical writing support.</li><li>Relevant topics shaped around each student's interests.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Dyslexia Specialism:</h3>
           <p>My primary area of expertise lies in dyslexia. I have extensive experience working in both public and private educational settings, focusing on supporting students with dyslexia. Effective support for children with dyslexia begins with a comprehensive assessment. Following this, individualized plans are created that are multisensory, systematically structured, and build upon each other. My approach involves crafting well-considered programs with specific, child-focused goals to ensure that learning is retained over the long term. Another critical element is my proficiency in utilizing assistive technology to aid learning. I also prioritize making lessons relevant and engaging by aligning them with each student's interests, thereby maximizing their effectiveness.</p>
@@ -428,7 +498,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-dyspraxia-title">Dyspraxia</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Dyspraxia summary"><h3>At a glance</h3><ul><li>Clear instructions broken into manageable stages.</li><li>Assistive technology, visual aids and adapted stationery.</li><li>Extra time, organisation tools and scheduled rest breaks.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Dyspraxia summary"><h3>Dyspraxia at a glance</h3><ul><li>Clear instructions broken into manageable stages.</li><li>Assistive technology, visual aids and adapted stationery.</li><li>Extra time, organisation tools and scheduled rest breaks.</li></ul></aside>
           <article class="skill-content-card"><h3>Practical support for secondary students</h3>
           <p>In my experience working with dyspraxic students in secondary education, I've found several strategies particularly effective:</p>
           <ul>
@@ -458,7 +528,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-dyscalculia-title">Dyscalculia</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Dyscalculia summary"><h3>At a glance</h3><ul><li>Content coming soon.</li><li>The original page marks this section as still to be developed.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Dyscalculia summary"><h3>Dyscalculia at a glance</h3><ul><li>Content coming soon.</li><li>The original page marks this section as still to be developed.</li></ul></aside>
           <article class="skill-content-card"><h3>Dyscalculia support</h3><p class="coming-soon"><strong>Content coming soon.</strong> The original page has this section marked as to be developed.</p></article>
         </div>
         <button class="btn btn-primary skill-dialog-close" type="button" data-dialog-close>Close details</button>
@@ -473,7 +543,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-adhd-title">ADHD</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="ADHD summary"><h3>At a glance</h3><ul><li>Calm workspaces, clear cues and simplified tasks.</li><li>Brain breaks, timers, checklists and suitable sensory tools.</li><li>Consistent routines and regular parent communication.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="ADHD summary"><h3>ADHD at a glance</h3><ul><li>Calm workspaces, clear cues and simplified tasks.</li><li>Brain breaks, timers, checklists and suitable sensory tools.</li><li>Consistent routines and regular parent communication.</li></ul></aside>
           <article class="skill-content-card"><h3>Attention, routines and motivation</h3>
           <p>Throughout my specialist training, I acquired extensive knowledge and practical skills to support students with attention difficulties, hyperactivity, and impulsivity, commonly associated with ADHD.</p>
           <p>My practical experience has shown that, in addition to foundational strategies for ADHD support, such as creating a clear and calm workspace, using cues to capture attention, simplifying tasks to prevent overload, implementing 'brain breaks', using timers, accommodating comfortable seating positions with appropriate fidget tools, offering calming activities, and encouraging students to paraphrase instructions, a few additional approaches are crucial. These include:</p>
@@ -497,7 +567,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-autism-title">Autism</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Autism summary"><h3>At a glance</h3><ul><li>Individualised secondary curricula for English and Maths.</li><li>Visual, sensory and communication strategies matched to the student.</li><li>Meaningful learning built on rapport and individual strengths.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Autism summary"><h3>Autism at a glance</h3><ul><li>Individualised secondary curricula for English and Maths.</li><li>Visual, sensory and communication strategies matched to the student.</li><li>Meaningful learning built on rapport and individual strengths.</li></ul></aside>
           <article class="skill-content-card"><h3>Individualised autism support</h3>
           <p>My involvement with students with autism has been a significant part of my role in educational settings. As the interim Lead of the only Autism Specialized Base in a secondary state school in Camden, I had the unique opportunity to tailor the curriculum to each student's needs. This customization was aimed at fostering their progress and engagement, employing recognized strategies such as The Incredible 5-Point Scale, ABC, Zones of Regulation, Social Stories, sensory profiling, and ELKLAN communication support for verbal ASD students in secondary education, focusing on receptive and expressive language. For younger students, methods like PECS, Makaton, and Colourful Semantics were implemented. Additionally, a variety of literacy and numeracy games, often facilitated by assistive technology like WordShark and NumberShark, were used. Part of my role also involved training other staff members in these methodologies.</p>
           <p>I have developed and taught an ASD-differentiated curriculum for core subjects like English and Maths for secondary-age students. This curriculum received an outstanding rating during the Ofsted inspection in 2018. For a more in-depth understanding, you can refer to my experiences with students like Jawad and Saptieu. Given that most exams emphasize quality writing, high-functioning autistic students often require specific support in various writing styles, emphasizing the need for supportive practice and constructive feedback.</p>
@@ -518,7 +588,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-anxiety-title">Anxiety</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Anxiety summary"><h3>At a glance</h3><ul><li>Identify the cause and build a step-by-step plan.</li><li>Use small successes to develop confidence.</li><li>Consider specialist help or access arrangements when needed.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Anxiety summary"><h3>Anxiety at a glance</h3><ul><li>Identify the cause and build a step-by-step plan.</li><li>Use small successes to develop confidence.</li><li>Consider specialist help or access arrangements when needed.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Anxiety Management:</h3>
           <p>Anxiety, characterized by feelings like worry or fear, varies in severity and requires careful handling. Identifying the root cause of anxiety is crucial for devising a step-by-step plan to address it. The process often starts with acknowledging these feelings and then witnessing small, incremental successes related to the anxiety trigger. For instance, in the case of exam-related anxiety, structured preparation and successful completion of past papers under exam conditions, followed by navigating through the initial exam, can significantly reduce anxiety levels.</p>
@@ -541,7 +611,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-executive-title">Executive functioning skills</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Executive functioning summary"><h3>At a glance</h3><ul><li>Support with starting, sequencing and completing tasks.</li><li>Planning, time management and organisation strategies.</li><li>Short structured tasks with sensory or mindful breaks.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Executive functioning summary"><h3>Executive functioning skills at a glance</h3><ul><li>Support with starting, sequencing and completing tasks.</li><li>Planning, time management and organisation strategies.</li><li>Short structured tasks with sensory or mindful breaks.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Executive Functioning Skills Support:</h3>
           <p>In my extensive work with students with Special Educational Needs (SEN), particularly those with ADHD, ADD, and ASD, I have gained a deep understanding of the various challenges associated with executive functioning skills. These challenges can include difficulties in initiating or completing tasks, prioritizing effectively, retaining information from oral or written sources, following directions or sequences, adapting to changes in rules or routines, shifting focus between tasks, managing intense emotions and fixations, organizing thoughts, managing time, and keeping track of personal belongings.</p>
@@ -568,7 +638,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-visual-title">Visual impairment</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Visual impairment summary"><h3>At a glance</h3><ul><li>Accessible resources, enlarged fonts and screen magnification.</li><li>Technology and oral work used to build on strengths.</li><li>Academic, emotional and social needs considered together.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Visual impairment summary"><h3>Visual impairment at a glance</h3><ul><li>Accessible resources, enlarged fonts and screen magnification.</li><li>Technology and oral work used to build on strengths.</li><li>Academic, emotional and social needs considered together.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Working with Partially Visually Impaired Students:</h3>
           <p>In my experience with partially visually impaired students, as detailed in Nadezda’s review, the primary focus has been on establishing a strong rapport and customizing learning to prioritize the most critical subjects in a manner that resonates with the student. This approach encompasses several key aspects:</p>
@@ -595,7 +665,7 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-social-title">Social communication</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Social communication summary"><h3>At a glance</h3><ul><li>Approaches tailored to each student's communication needs.</li><li>Visuals, communication cards and rehearsed scenarios where useful.</li><li>Progress recognised sensitively and consistently.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Social communication summary"><h3>Social communication at a glance</h3><ul><li>Approaches tailored to each student's communication needs.</li><li>Visuals, communication cards and rehearsed scenarios where useful.</li><li>Progress recognised sensitively and consistently.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Supporting Students with Social Communication Challenges:</h3>
           <p>Many students, particularly those on the autism spectrum or those dealing with anxiety and other mental health issues, face challenges with social communication. The 'theory of mind' concept helps in understanding one aspect of these challenges in the context of ASD.</p>
@@ -616,11 +686,11 @@
           <div><span class="eyebrow">Skills &amp; support</span><h2 id="skill-other-title">Other skills</h2></div>
         </div>
         <div class="skill-dialog-copy">
-          <aside class="skill-at-glance" aria-label="Other skills summary"><h3>At a glance</h3><ul><li>Processing, concentration and independent learning strategies.</li><li>Study skills for planning, writing and revision.</li><li>Subject support for 11+ and GCSE English and Maths.</li></ul></aside>
+          <aside class="skill-at-glance" aria-label="Other skills summary"><h3>Other skills at a glance</h3><ul><li>Processing, concentration and independent learning strategies.</li><li>Study skills for planning, writing and revision.</li><li>Subject support for 11+ and GCSE English and Maths.</li></ul></aside>
           <article class="skill-content-card">
           <h3>Supporting Students with Processing Difficulties:</h3>
           <p>In my teaching career, I've encountered numerous students who experience processing difficulties. To boost their confidence, it's crucial to align teaching with their interests and learning styles, honoring their natural ways of learning while strengthening areas that require improvement. My approach includes well-paced, scaffolded tasks, supplemented by visual aids, 3D props, mindful breaks, and self-reflection summaries. This methodology encourages students to actively engage in their learning, reflect on it, and witness immediate progress. Structured, cumulative teaching is also essential for enhancing long-term memory retention.</p>
-          <h3>Focus and Concentration Skills Enhancement:</h3>
+          <h3>Building Focus in Wider Study:</h3>
           <p>I believe that engaging, personalized, and relevant teaching significantly improves students' focus from the outset (refer to sections on motivation, fun lessons, managing anxiety, writing resistance, and confidence improvement). To further boost concentration, sensory and mindfulness tools are employed, including short, structured tasks, active or mindful rest breaks, and various props. Creating a sensory profile for each student aids in identifying the most effective tools for them.</p>
           <h3>Developing Independence:</h3>
           <p>Metacognition plays a vital role in the learning process, fostering motivation and leading to growing independence. Through regular, methodical self-evaluation, students gradually take ownership of their learning. This process may include winning quizzes with rewards and setting specific goals. Long-term independence involves students making conscious decisions about their learning, facilitated by the tutor who first needs to establish trust. Understanding students' passions, dreams, strengths, and challenges is key to creating a unique and engaging learning experience.</p>
@@ -653,7 +723,7 @@
               <span class="step-num" aria-hidden="true">1</span>
               <h3>Fill in the form</h3>
               <p>Tell me a little about your child — it only takes a minute.</p>
-              <a class="step-link" href="contact.html">Go to the form ➜</a>
+              <a class="step-link" href="/contact">Go to the form ➜</a>
             </article>
             <article class="step-card reveal d2">
               <span class="step-num" aria-hidden="true">2</span>
@@ -731,13 +801,54 @@
       </div>
     </section>
 
+    <!-- ================= FAQ ================= -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">❓ Common questions</span>
+          <h2>Questions parents ask first</h2>
+        </div>
+
+        <div class="faq-list">
+          <article class="faq-item reveal">
+            <h3>What age range does Eva tutor?</h3>
+            <p>Eva supports children and adolescents aged 5 to 16, covering communication, memory, phonics, reading, spelling and foundational skills in literacy and numeracy.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Which special educational needs does Eva support?</h3>
+            <p>Eva has specialist training in dyslexia, dyspraxia, dyscalculia, ADHD, autism, anxiety, executive functioning, visual impairment and social communication needs.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Are the tuition sessions online?</h3>
+            <p>Yes. Tuition is delivered online using video-conferencing tools, with screen sharing used for games, quizzes and shared activities during the session.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Can Eva tutor British families living abroad?</h3>
+            <p>Yes. Because sessions run online, Eva can support UK families overseas who want to keep their child on the British curriculum, from Key Stage 1 through to 11+ and GCSE.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>What qualifications does Eva hold?</h3>
+            <p>Eva holds QTS (Qualified Teacher Status), an OCR Level 5 Diploma, a Level 3 Diploma and CELTA, alongside 14 years of specialist teaching experience.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Which subjects can Eva help with?</h3>
+            <p>Eva teaches English and Maths, including 11+ and GCSE preparation, and supports study skills such as planning, structured writing and revision.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>How do I arrange a first session?</h3>
+            <p>Fill in the contact form with a little about your child. Eva will then arrange a free consultation to discuss your case, with no pressure and no jargon, before agreeing tailored sessions.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= CTA ================= -->
     <section>
       <div class="container">
         <div class="cta-banner reveal">
           <h2>Ready to see your child soar? 🎈</h2>
           <p>The first chat is free, friendly and all about your child. No pressure, no jargon — just a plan.</p>
-          <a class="btn btn-sun" href="contact.html">Book the free consultation <span class="arrow" aria-hidden="true">➜</span></a>
+          <a class="btn btn-sun" href="/contact">Book the free consultation <span class="arrow" aria-hidden="true">➜</span></a>
         </div>
       </div>
     </section>
@@ -763,8 +874,8 @@
             <li><a href="#how-to-start">How to start</a></li>
             <li><a href="#testimonials">Testimonials</a></li>
             <li><a href="#skills">Skills</a></li>
-            <li><a href="about.html">About &amp; skills</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="/about">About &amp; skills</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </div>
         <div>
