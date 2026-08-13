@@ -1,4 +1,5 @@
 import json
+import html
 import re
 import unittest
 from html.parser import HTMLParser
@@ -250,7 +251,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             help_banner,
         )
 
-    def test_philosophy_is_a_scannable_two_column_editorial_text_card(self):
+    def test_philosophy_is_a_scannable_four_row_synthesis(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")
         stylesheet = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
         philosophy = homepage[
@@ -259,177 +260,66 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         ]
 
         self.assertIn('class="philo-copy"', philosophy)
-        self.assertEqual(4, philosophy.count('class="philo-story-block"'))
-        self.assertNotIn('class="philo-layout"', philosophy)
-        self.assertNotIn('class="philo-figure"', philosophy)
-        self.assertNotIn('<figure', philosophy)
-        self.assertNotIn('<img', philosophy)
-        self.assertNotIn('learning-landscape', philosophy)
-        self.assertNotIn('class="visual-break"', homepage)
-        self.assertNotIn('.philo-layout', stylesheet)
-        self.assertNotIn('.philo-figure', stylesheet)
-        self.assertNotIn('.philo-card::before', stylesheet)
-        self.assertNotRegex(
-            stylesheet,
-            r"\.philo[^\{]*\{[^}]*position:\s*sticky",
-        )
+        self.assertEqual(4, philosophy.count('<section class="philo-story-block">'))
+        self.assertNotIn('<details', philosophy)
+        self.assertNotIn('<summary', philosophy)
+        self.assertNotIn('Read full story', philosophy)
+        self.assertNotRegex(philosophy, r'(?i)(?:philo-step|story-number|story-label|data-story-number|counter\s*\()')
+        self.assertEqual(4, philosophy.count('class="philo-story-graphic"'))
+
         copy = re.search(r'<div class="philo-copy">(.*?)</div>\s*</div>', philosophy, re.S)
         self.assertIsNotNone(copy)
         copy_html = copy.group(1)
-        story_grid_open = re.search(r'<div class="philo-story-grid">', copy_html)
-        self.assertIsNotNone(story_grid_open)
-        story_grid_html = copy_html[story_grid_open.end():copy_html.index('<p class="philo-highlight"')]
-        self.assertEqual(4, story_grid_html.count('class="philo-story-block"'))
-        self.assertLess(copy_html.index('class="philo-intro"'), copy_html.index('class="philo-story-grid"'))
-        self.assertGreater(copy_html.index('class="philo-highlight"'), copy_html.index('class="philo-story-grid"'))
-
-        expected_headings = (
-            "Removing barriers",
-            "Learning from every role",
-            "Student-centred practice",
-            "Teaching for today",
-        )
-        self.assertEqual(expected_headings, tuple(re.findall(r"<h3[^>]*>([^<]+)</h3>", story_grid_html)))
-
+        story_grid = re.search(r'<div class="philo-story-grid">(.*?)</div>\s*<p class="philo-highlight">', copy_html, re.S)
+        self.assertIsNotNone(story_grid)
+        story_grid_html = story_grid.group(1)
         story_blocks = re.findall(r'<section class="philo-story-block">(.*?)</section>', story_grid_html, re.S)
         self.assertEqual(4, len(story_blocks))
-        icon_markers = []
-        icon_geometry = []
-        for position, block in enumerate(story_blocks, start=1):
-            with self.subTest(story_icon=position):
-                heading = re.search(r'<div class="philo-story-heading">(.*?)</div>', block, re.S)
-                self.assertIsNotNone(heading)
-                self.assertEqual(1, heading.group(1).count("<h3"))
-                icons = re.findall(r"<svg\b([^>]*)>(.*?)</svg>", heading.group(1), re.S)
-                self.assertEqual(1, len(icons))
-                attributes, drawing = icons[0]
-                self.assertRegex(attributes, r'\bclass="[^"]*\bphilo-icon\b[^"]*"')
-                self.assertIn('aria-hidden="true"', attributes)
-                self.assertIn('focusable="false"', attributes)
-                self.assertNotRegex(attributes + drawing, r"(?i)\b(?:href|src)\s*=|<use\b")
-                classes = re.search(r'class="([^"]+)"', attributes).group(1).split()
-                icon_markers.append(tuple(name for name in classes if name != "philo-icon"))
-                geometry = re.findall(r"<(?:path|polyline|circle)\b[^>]*>", drawing)
-                self.assertTrue(geometry)
-                icon_geometry.append("".join(re.sub(r"\s+", " ", item) for item in geometry))
-        self.assertEqual(4, story_grid_html.count("<svg"))
-        meaningful_unique_markers = (
-            all(len(markers) == 1 and re.fullmatch(r"philo-icon-[a-z][a-z-]*", markers[0]) for markers in icon_markers)
-            and len(set(icon_markers)) == 4
+        self.assertEqual(
+            ("Removing barriers", "Broader perspective", "Individual expertise", "Multisensory & online"),
+            tuple(
+                html.unescape(heading)
+                for heading in re.findall(r"<h3[^>]*>([^<]+)</h3>", story_grid_html)
+            ),
         )
-        self.assertTrue(meaningful_unique_markers or len(set(icon_geometry)) == 4)
-        for unchanged_wording in (
-            "Every child has the inherent right to be heard and accorded respect.",
-            "My educational approach champions the dismantling of learning barriers",
-            "I am immensely grateful for the formative years of my educational career",
-            "It became evident swiftly that a student-centric approach",
-            "Fast forward four years, and I have evolved into an educator capable",
-            "Every school day presents fresh hurdles, and my commitment to my students is unwavering",
-        ):
-            with self.subTest(wording=unchanged_wording):
-                self.assertIn(unchanged_wording, re.sub(r"\s+", " ", copy_html))
 
-        copy_rule = re.search(r"\.philo-copy\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(copy_rule)
-        self.assertNotRegex(copy_rule.group(1), r"max-width:\s*68ch")
+        expected_summaries = (
+            "I remove barriers through specialist training, carefully chosen resources and teaching methods tailored to each learner.",
+            "Working as both a teacher and classroom assistant broadened my understanding of the English curriculum and showed me that children can thrive beyond fixed programmes.",
+            "My Ofsted-recognised teaching, Autism Resource Base experience and specialist autism and SpLD/dyslexia training shape an individual approach to adapted English and Maths.",
+            "I deliver dynamic, multisensory online lessons and use technology to keep digital learning organised, accessible and purposeful.",
+        )
+        expected_markers = (
+            ("Specialist training", "Selected materials", "Individual methods"),
+            ("Dual perspective", "Curriculum insight", "Beyond one programme"),
+            ("Learner first", "Autism expertise", "SpLD and dyslexia"),
+            ("Multisensory learning", "Online teaching", "Organised workbooks"),
+        )
+        for position, (block, expected_summary, markers) in enumerate(zip(story_blocks, expected_summaries, expected_markers), start=1):
+            with self.subTest(story_row=position):
+                paragraphs = re.findall(r'<p class="philo-story-copy">(.*?)</p>', block, re.S)
+                self.assertEqual((expected_summary,), tuple(re.sub(r"\s+", " ", item).strip() for item in paragraphs))
+                marker_lists = re.findall(r'<ul class="philo-concepts"[^>]*>(.*?)</ul>', block, re.S)
+                self.assertEqual(1, len(marker_lists))
+                self.assertEqual(markers, tuple(re.findall(r'<li>(.*?)</li>', marker_lists[0], re.S)))
+                self.assertEqual(1, block.count('<svg class="philo-story-graphic"'))
+                self.assertIn('aria-hidden="true"', block)
+
+        self.assertIn(
+            'Every child deserves to be heard, respected and given the right support to flourish.',
+            copy_html,
+        )
+        self.assertIn(
+            'When a learner meets a hurdle, I keep adapting until we find the right way forward.',
+            copy_html,
+        )
+
         grid_rule = re.search(r"\.philo-story-grid\s*\{([^}]*)\}", stylesheet)
         self.assertIsNotNone(grid_rule)
         self.assertRegex(grid_rule.group(1), r"display:\s*grid")
-        self.assertRegex(grid_rule.group(1), r"counter-reset:\s*philo-step")
-        self.assertRegex(
-            grid_rule.group(1),
-            r"grid-template-columns:\s*(?:repeat\(\s*2\s*,\s*minmax\(\s*0\s*,\s*1fr\s*\)\s*\)"
-            r"|minmax\(\s*0\s*,\s*1fr\s*\)\s+minmax\(\s*0\s*,\s*1fr\s*\))",
-        )
-        self.assertRegex(grid_rule.group(1), r"\bgap:")
-
-        card_rule = re.search(r"\.philo-card\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(card_rule)
-        self.assertRegex(
-            card_rule.group(1),
-            r"background(?:-image)?:\s*(?:linear-gradient|radial-gradient|color-mix)\(",
-        )
-
-        story_rule = re.search(r"\.philo-story-block\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(story_rule)
-        self.assertRegex(story_rule.group(1), r"counter-increment:\s*philo-step")
-        self.assertRegex(story_rule.group(1), r"border-radius:\s*var\(--[\w-]+\)")
-        self.assertRegex(story_rule.group(1), r"padding:\s*(?:clamp\([^;]+|[1-9]\d*(?:\.\d+)?rem)")
-        self.assertRegex(story_rule.group(1), r"box-shadow:\s*(?:var\(--[\w-]+\)|[^;]*rgba?\()")
-        self.assertRegex(story_rule.group(1), r"border[^:]*:\s*[^;]*var\(--story-accent\)")
-        self.assertRegex(story_rule.group(1), r"background:\s*var\(--story-bg\)")
-        self.assertRegex(story_rule.group(1), r"position:\s*relative")
-
-        icon_rule = re.search(r"\.philo-icon\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(icon_rule)
-        icon_css = icon_rule.group(1)
-
-        def css_length_in_pixels(property_name):
-            value = re.search(rf"\b{property_name}:\s*(\d+(?:\.\d+)?)(px|rem)\s*;", icon_css)
-            self.assertIsNotNone(value)
-            amount = float(value.group(1))
-            return amount * 16 if value.group(2) == "rem" else amount
-
-        icon_width = css_length_in_pixels("width")
-        icon_height = css_length_in_pixels("height")
-        self.assertGreaterEqual(icon_width, 40)
-        self.assertLessEqual(icon_width, 48)
-        self.assertEqual(icon_width, icon_height)
-        self.assertRegex(icon_css, r"color:\s*var\(--story-accent\)")
-        self.assertRegex(icon_css, r"stroke:\s*currentColor")
-        self.assertRegex(icon_css, r"fill:\s*none")
-        self.assertRegex(icon_css, r"stroke-width:\s*\d+(?:\.\d+)?")
-
-        heading_rule = re.search(r"\.philo-story-heading\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(heading_rule)
-        self.assertRegex(heading_rule.group(1), r"display:\s*(?:flex|grid)")
-        self.assertRegex(heading_rule.group(1), r"align-items:\s*center")
-        self.assertRegex(heading_rule.group(1), r"\bgap:")
-
-        cue_rule = re.search(r"\.philo-story-block::before\s*\{([^}]*)\}", stylesheet)
-        self.assertIsNotNone(cue_rule)
-        self.assertRegex(
-            cue_rule.group(1),
-            r"content:\s*counter\(\s*philo-step\s*,\s*decimal-leading-zero\s*\)",
-        )
-        self.assertRegex(cue_rule.group(1), r"position:\s*absolute")
-        self.assertNotRegex(cue_rule.group(1), r"(?i)color:\s*(?:#fff(?:fff)?|white)")
-
-        accents = []
-        backgrounds = []
-        allowed_accents = {"coral", "teal", "grape", "sky", "sun"}
-        for position in range(1, 5):
-            nth = re.search(
-                rf"\.philo-story-block:nth-child\(\s*{position}\s*\)\s*\{{([^}}]*)\}}",
-                stylesheet,
-            )
-            with self.subTest(story_accent=position):
-                self.assertIsNotNone(nth)
-                accent = re.search(r"--story-accent:\s*var\(--([\w-]+)\)", nth.group(1))
-                background = re.search(r"--story-bg:\s*([^;]+)", nth.group(1))
-                self.assertIsNotNone(accent)
-                self.assertIn(accent.group(1), allowed_accents)
-                self.assertIsNotNone(background)
-                self.assertRegex(
-                    background.group(1),
-                    r"(?:color-mix\(|var\(--[\w-]*(?:light|soft|pale|cream|surface)[\w-]*\))",
-                )
-                self.assertNotRegex(nth.group(1), r"(?i)color:\s*(?:#fff(?:fff)?|white)")
-                accents.append(accent.group(1))
-                backgrounds.append(background.group(1).strip())
-        self.assertEqual(4, len(set(accents)))
-        self.assertEqual(4, len(set(backgrounds)))
-
-        self.assertRegex(
-            stylesheet,
-            r"\.philo-story-block\s+p\s*\{[^}]*max-width:\s*(?:[4-6]\d|70)ch\s*;"
-            r"[^}]*line-height:",
-        )
-        self.assertRegex(
-            stylesheet,
-            r"@media\s*\(max-width:\s*9\d\dpx\)\s*\{"
-            r"(?:(?!@media)[\s\S])*?\.philo-story-grid\s*\{[^}]*grid-template-columns:\s*1fr\s*;",
-        )
+        self.assertRegex(grid_rule.group(1), r"grid-template-columns:\s*(?:1fr|minmax\(\s*0\s*,\s*1fr\s*\))")
+        self.assertNotRegex(grid_rule.group(1), r"counter-(?:reset|increment)")
+        self.assertNotRegex(stylesheet, r"counter-(?:reset|increment)\s*:\s*philo-step")
 
     def test_skills_cards_are_buttons_linked_to_native_dialogs(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")

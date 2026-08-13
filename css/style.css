@@ -327,29 +327,22 @@ html.calm .calm-toggle { border-color: var(--teal); color: var(--teal-deep); }
   color: var(--grape-deep); margin-bottom: 1.6rem !important;
 }
 .philo-story-grid {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.3rem; margin: 0.5rem 0 1.6rem; counter-reset: philo-step;
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  gap: 1rem; margin: 0.5rem 0 1.6rem;
 }
 .philo-story-block {
-  counter-increment: philo-step; position: relative;
-  padding: 1.4rem; border: 1px solid color-mix(in srgb, var(--story-accent) 36%, white);
+  position: relative; overflow: hidden;
+  padding: clamp(1.15rem, 2.5vw, 1.45rem); border: 1px solid color-mix(in srgb, var(--story-accent) 36%, white);
   border-left: 5px solid var(--story-accent); border-radius: var(--r-md);
   background: var(--story-bg); box-shadow: 0 10px 24px rgba(46, 42, 79, 0.07);
-}
-.philo-story-block::before {
-  content: counter(philo-step, decimal-leading-zero);
-  position: absolute; top: 1.4rem; right: 1.4rem;
-  display: grid; place-items: center; width: 2.5rem; height: 2rem;
-  border: 1px solid var(--story-accent); border-radius: var(--r-pill);
-  background: color-mix(in srgb, var(--story-accent) 14%, white); color: var(--ink);
-  font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em;
 }
 .philo-story-block:nth-child(1) { --story-accent: var(--coral); --story-bg: color-mix(in srgb, var(--coral) 8%, white); }
 .philo-story-block:nth-child(2) { --story-accent: var(--teal); --story-bg: color-mix(in srgb, var(--teal) 8%, white); }
 .philo-story-block:nth-child(3) { --story-accent: var(--grape); --story-bg: color-mix(in srgb, var(--grape) 8%, white); }
 .philo-story-block:nth-child(4) { --story-accent: var(--sky); --story-bg: color-mix(in srgb, var(--sky) 8%, white); }
 .philo-story-heading {
-  display: flex; align-items: center; gap: 0.9rem; padding-right: 3.4rem; margin-bottom: 0.9rem;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: 0.9rem; margin-bottom: 0.65rem;
 }
 .philo-icon {
   width: 44px; height: 44px; flex: none; padding: 0.55rem;
@@ -359,7 +352,30 @@ html.calm .calm-toggle { border-color: var(--teal); color: var(--teal-deep); }
   stroke-linecap: round; stroke-linejoin: round;
 }
 .philo-story-block h3 { margin: 0; color: var(--ink); font-size: 1.15rem; }
-.philo-story-block p { max-width: 56ch; margin-bottom: 0; line-height: 1.75; }
+.philo-story-graphic {
+  width: 72px; height: 44px; color: var(--story-accent);
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.philo-graphic-halo {
+  fill: color-mix(in srgb, var(--story-accent) 11%, white); stroke: none;
+}
+.philo-story-block p.philo-story-copy {
+  max-width: 82ch; margin: 0; color: var(--ink-soft); line-height: 1.65;
+}
+.philo-concepts {
+  display: flex; flex-wrap: wrap; gap: 0.45rem 1.25rem;
+  margin: 0.8rem 0 0; padding: 0; list-style: none;
+}
+.philo-concepts li {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  color: var(--ink); font-size: 0.86rem; font-weight: 700;
+}
+.philo-concepts li::before {
+  content: ""; width: 0.5rem; height: 0.5rem; flex: none;
+  border: 2px solid var(--story-accent); border-radius: 50%;
+  background: color-mix(in srgb, var(--story-accent) 24%, white);
+}
 .philo-highlight {
   background: linear-gradient(135deg, #FFF4D6, #FFE9D6);
   border-left: 6px solid var(--sun);
