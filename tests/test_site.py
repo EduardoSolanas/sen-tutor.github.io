@@ -265,7 +265,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         self.assertNotIn('<summary', philosophy)
         self.assertNotIn('Read full story', philosophy)
         self.assertNotRegex(philosophy, r'(?i)(?:philo-step|story-number|story-label|data-story-number|counter\s*\()')
-        self.assertEqual(4, philosophy.count('class="philo-story-graphic"'))
+        self.assertNotIn('class="philo-story-graphic"', philosophy)
 
         copy = re.search(r'<div class="philo-copy">(.*?)</div>\s*</div>', philosophy, re.S)
         self.assertIsNotNone(copy)
@@ -302,8 +302,6 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
                 marker_lists = re.findall(r'<ul class="philo-concepts"[^>]*>(.*?)</ul>', block, re.S)
                 self.assertEqual(1, len(marker_lists))
                 self.assertEqual(markers, tuple(re.findall(r'<li>(.*?)</li>', marker_lists[0], re.S)))
-                self.assertEqual(1, block.count('<svg class="philo-story-graphic"'))
-                self.assertIn('aria-hidden="true"', block)
 
         self.assertIn(
             'Every child deserves to be heard, respected and given the right support to flourish.',
@@ -317,9 +315,38 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         grid_rule = re.search(r"\.philo-story-grid\s*\{([^}]*)\}", stylesheet)
         self.assertIsNotNone(grid_rule)
         self.assertRegex(grid_rule.group(1), r"display:\s*grid")
-        self.assertRegex(grid_rule.group(1), r"grid-template-columns:\s*(?:1fr|minmax\(\s*0\s*,\s*1fr\s*\))")
+        self.assertRegex(
+            grid_rule.group(1),
+            r"grid-template-columns:\s*repeat\(\s*2\s*,\s*minmax\(\s*0\s*,\s*1fr\s*\)\)",
+        )
         self.assertNotRegex(grid_rule.group(1), r"counter-(?:reset|increment)")
         self.assertNotRegex(stylesheet, r"counter-(?:reset|increment)\s*:\s*philo-step")
+
+        card_rule = re.search(r"\.philo-story-block\s*\{([^}]*)\}", stylesheet)
+        self.assertIsNotNone(card_rule)
+        self.assertNotRegex(card_rule.group(1), r"border-radius:\s*var\(--r-(?:md|lg)\)")
+        radius = re.search(r"border-radius:\s*(\d+)px", card_rule.group(1))
+        self.assertIsNotNone(radius)
+        self.assertLessEqual(int(radius.group(1)), 12)
+
+        responsive_start = re.search(
+            r"@media\s*\([^)]*(?:max-width\s*:\s*960px|width\s*<=\s*960px)[^)]*\)\s*\{",
+            stylesheet,
+        )
+        self.assertIsNotNone(responsive_start)
+        next_media = re.search(r"^@media\s*\(", stylesheet[responsive_start.end():], re.M)
+        responsive_end = (
+            responsive_start.end() + next_media.start()
+            if next_media
+            else len(stylesheet)
+        )
+        responsive_slice = stylesheet[responsive_start.end():responsive_end]
+        mobile_grid = re.search(r"\.philo-story-grid\s*\{([^}]*)\}", responsive_slice)
+        self.assertIsNotNone(mobile_grid)
+        self.assertRegex(
+            mobile_grid.group(1),
+            r"grid-template-columns:\s*1fr(?:\s|;|$)",
+        )
 
     def test_skills_cards_are_buttons_linked_to_native_dialogs(self):
         homepage = (ROOT / "index.html").read_text(encoding="utf-8")
