@@ -163,6 +163,29 @@
   var form = document.getElementById("contactForm");
   if (form) {
     var status = document.getElementById("formStatus");
+
+    /* Postcode is shown and required only when face-to-face is ticked */
+    var online = document.getElementById("locationOnline");
+    var faceToFace = document.getElementById("locationFaceToFace");
+    var postcodeField = document.getElementById("postcodeField");
+    var postcode = document.getElementById("postcode");
+    if (online && faceToFace && postcodeField && postcode) {
+      var syncPostcode = function () {
+        var wantsFaceToFace = faceToFace.checked;
+        postcodeField.hidden = !wantsFaceToFace;
+        postcode.disabled = !wantsFaceToFace;
+        postcode.required = wantsFaceToFace;
+        if (!wantsFaceToFace) { postcode.value = ""; }
+        online.setCustomValidity(
+          online.checked || faceToFace.checked ? "" : "Please tick at least one location."
+        );
+      };
+      online.addEventListener("change", syncPostcode);
+      faceToFace.addEventListener("change", syncPostcode);
+      form.addEventListener("reset", function () { setTimeout(syncPostcode, 0); });
+      syncPostcode();
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       if (!form.checkValidity()) {

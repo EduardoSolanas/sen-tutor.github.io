@@ -135,6 +135,25 @@
               <input type="tel" name="phone" id="phone" placeholder="Best number to reach you" required autocomplete="tel" />
             </div>
 
+            <fieldset class="field tick-group">
+              <legend>Location <span class="req" aria-hidden="true">*</span></legend>
+              <label class="tick" for="locationOnline">
+                <input type="checkbox" name="location" id="locationOnline" value="Online" checked />
+                <span>Online</span>
+              </label>
+              <label class="tick" for="locationFaceToFace">
+                <input type="checkbox" name="location" id="locationFaceToFace" value="Face to face" />
+                <span>Face to face</span>
+              </label>
+              <p class="hint">Tick either — or both, if you're happy with a mix.</p>
+            </fieldset>
+
+            <div class="field" id="postcodeField" hidden>
+              <label for="postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" name="postcode" id="postcode" placeholder="e.g. SW1A 1AA" autocomplete="postal-code" disabled />
+              <p class="hint">Needed so Eva can check travel for face-to-face sessions.</p>
+            </div>
+
             <div class="field">
               <label for="message">Message <span class="req" aria-hidden="true">*</span></label>
               <textarea name="message" id="message" rows="5" placeholder="Tell me a little about your child and what support you're looking for…" required></textarea>

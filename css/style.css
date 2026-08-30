@@ -647,6 +647,25 @@ body.dialog-open { overflow: hidden; }
   box-shadow: 0 0 0 4px rgba(124, 108, 240, 0.18);
 }
 .field textarea { resize: vertical; min-height: 140px; }
+.field[hidden] { display: none; }
+.tick-group { border: 0; padding: 0; }
+.tick-group legend { font-family: var(--font-display); font-weight: 600; margin-bottom: 0.45rem; padding: 0; }
+.tick-group legend .req { color: var(--coral-deep); }
+.field label.tick {
+  display: flex; align-items: center; gap: 0.7rem; cursor: pointer;
+  background: var(--cream); border: 3px solid var(--line); border-radius: 16px;
+  padding: 0.7rem 1.1rem; margin-bottom: 0.6rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field label.tick > span { display: block; line-height: 1.25; }
+.field label.tick:hover { border-color: var(--grape); }
+.field label.tick:has(input:focus-visible) { border-color: var(--grape); box-shadow: 0 0 0 4px rgba(124, 108, 240, 0.18); }
+.field label.tick:has(input:checked) { border-color: var(--grape); background: var(--surface); }
+.field input[type="checkbox"] {
+  width: 22px; height: 22px; flex: none; padding: 0; margin: 0;
+  accent-color: var(--grape); cursor: pointer;
+}
+
 .field .hint { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.35rem; }
 .form-privacy { margin: -0.2rem 0 1.3rem; color: var(--ink-soft); font-size: 0.88rem; }
 .form-status { margin-top: 1rem; font-weight: 600; min-height: 1.6rem; }

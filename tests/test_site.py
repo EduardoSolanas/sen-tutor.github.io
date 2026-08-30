@@ -897,6 +897,106 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             r"\.skill-at-glance\s+ul\s*\{[^}]*\blist-style-position:\s*inside\s*;",
         )
 
+    def contact_form_fields(self):
+        class FieldParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.elements = {}
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if attributes.get("id"):
+                    self.elements[attributes["id"]] = attributes
+
+        parser = FieldParser()
+        parser.feed((ROOT / "contact.html").read_text(encoding="utf-8"))
+        return parser.elements
+
+    def test_location_is_a_multi_select_pair_of_ticks_defaulting_to_online(self):
+        elements = self.contact_form_fields()
+        online = elements.get("locationOnline")
+        face_to_face = elements.get("locationFaceToFace")
+        self.assertIsNotNone(online, "contact form should offer an online tick")
+        self.assertIsNotNone(face_to_face, "contact form should offer a face-to-face tick")
+
+        for tick, value in ((online, "Online"), (face_to_face, "Face to face")):
+            self.assertEqual("checkbox", tick.get("type"), "ticks, not a dropdown")
+            self.assertEqual("location", tick.get("name"), "both ticks submit together")
+            self.assertEqual(value, tick.get("value"))
+
+        self.assertIn("checked", online, "Online should be ticked by default")
+        self.assertNotIn("checked", face_to_face)
+
+    def test_postcode_field_starts_hidden_and_inert_so_online_enquiries_skip_it(self):
+        elements = self.contact_form_fields()
+        field = elements.get("postcodeField")
+        postcode = elements.get("postcode")
+        self.assertIsNotNone(field, "postcode should live in its own toggleable field")
+        self.assertIsNotNone(postcode)
+        self.assertIn("hidden", field)
+        self.assertIn("disabled", postcode, "a hidden postcode must not be submitted")
+        self.assertNotIn("required", postcode, "postcode must not block an online enquiry")
+        self.assertEqual("postcode", postcode.get("name"))
+
+    def test_hidden_form_fields_are_not_rendered(self):
+        stylesheet = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
+        self.assertRegex(stylesheet, r"\.field\[hidden\]\s*\{[^}]*\bdisplay:\s*none\s*;")
+
+    def test_ticks_are_not_stretched_by_the_full_width_input_styling(self):
+        stylesheet = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
+        self.assertRegex(
+            stylesheet,
+            r'\.field input\[type="checkbox"\]\s*\{[^}]*\bwidth:\s*(?!100%)',
+            "checkboxes must opt out of the width:100% text-input styling",
+        )
+        self.assertRegex(
+            stylesheet,
+            r"\.field label\.tick\s*\{[^}]*\bdisplay:\s*flex\s*;[^}]*\balign-items:\s*center\s*;",
+            "the .field label block rule outranks a bare .tick selector",
+        )
+        self.assertRegex(
+            stylesheet,
+            r"\.field label\.tick > span\s*\{[^}]*\bline-height:\s*1\.25\s*;",
+            "the body line-height leaves the label text sitting below the tick",
+        )
+
+    def test_postcode_is_shown_and_required_only_while_the_face_to_face_tick_is_on(self):
+        script = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+        sync = re.search(r"var syncPostcode = function \(\) \{(.*?)\n      \};", script, re.S)
+        self.assertIsNotNone(sync, "main.js should define a syncPostcode handler")
+        body = sync.group(1)
+
+        self.assertRegex(body, r"wantsFaceToFace = faceToFace\.checked")
+        self.assertRegex(body, r"postcodeField\.hidden = !wantsFaceToFace")
+        self.assertRegex(body, r"postcode\.disabled = !wantsFaceToFace")
+        self.assertRegex(body, r"postcode\.required = wantsFaceToFace")
+        self.assertRegex(
+            body,
+            r'if \(!wantsFaceToFace\) \{ postcode\.value = ""; \}',
+            "unticking face to face should clear a stale postcode",
+        )
+
+    def test_at_least_one_location_tick_is_required(self):
+        script = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+        self.assertRegex(
+            script,
+            r"online\.checked \|\| faceToFace\.checked",
+            "neither tick on should block submission",
+        )
+        self.assertRegex(script, r"setCustomValidity\(")
+
+    def test_tick_changes_resets_and_page_load_all_resync_the_postcode_field(self):
+        script = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+        self.assertIn('online.addEventListener("change", syncPostcode);', script)
+        self.assertIn('faceToFace.addEventListener("change", syncPostcode);', script)
+        self.assertRegex(
+            script,
+            r'form\.addEventListener\("reset", function \(\) \{ setTimeout\(syncPostcode, 0\); \}\);',
+            "a successful send resets the form, so the postcode field must resync",
+        )
+        self.assertRegex(script, r"\n      syncPostcode\(\);", "sync once on load")
+
+
 
 class SeoHardeningTests(unittest.TestCase):
     def graph(self, page_name):
