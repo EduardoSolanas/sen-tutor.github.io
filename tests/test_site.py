@@ -912,7 +912,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         parser.feed((ROOT / "contact.html").read_text(encoding="utf-8"))
         return parser.elements
 
-    def test_location_is_a_multi_select_pair_of_ticks_defaulting_to_online(self):
+    def test_location_is_a_multi_select_pair_of_ticks_with_no_default(self):
         elements = self.contact_form_fields()
         online = elements.get("locationOnline")
         face_to_face = elements.get("locationFaceToFace")
@@ -924,7 +924,7 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
             self.assertEqual("location", tick.get("name"), "both ticks submit together")
             self.assertEqual(value, tick.get("value"))
 
-        self.assertIn("checked", online, "Online should be ticked by default")
+        self.assertNotIn("checked", online, "no location should be pre-ticked")
         self.assertNotIn("checked", face_to_face)
 
     def test_postcode_field_starts_hidden_and_inert_so_online_enquiries_skip_it(self):
