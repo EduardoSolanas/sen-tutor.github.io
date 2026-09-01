@@ -927,6 +927,30 @@ class ModernSiteAcceptanceTests(unittest.TestCase):
         self.assertNotIn("checked", online, "no location should be pre-ticked")
         self.assertNotIn("checked", face_to_face)
 
+    def test_face_to_face_states_its_hours_in_helper_not_heading_type(self):
+        contact = (ROOT / "contact.html").read_text(encoding="utf-8")
+        stylesheet = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
+
+        self.assertRegex(
+            contact,
+            r'id="locationFaceToFace"[^>]*/>\s*<span>Face to face <small>[^<]*10:00.15:00[^<]*</small>',
+            "the hours belong on the tick they qualify",
+        )
+
+        note_rule = re.search(
+            r"\.field label\.tick > span small\s*\{([^}]*)\}", stylesheet
+        )
+        self.assertIsNotNone(note_rule, "the note needs its own rule")
+        declarations = note_rule.group(1)
+        self.assertRegex(declarations, r"\bdisplay:\s*block\s*;", "sits on its own line")
+        self.assertRegex(
+            declarations,
+            r"\bfont-family:\s*var\(--font-body\)\s*;",
+            ".field label sets the display font, which reads as a shrunken heading",
+        )
+        self.assertRegex(declarations, r"\bfont-weight:\s*400\s*;")
+        self.assertRegex(declarations, r"\bcolor:\s*var\(--ink-soft\)\s*;")
+
     def test_postcode_field_starts_hidden_and_inert_so_online_enquiries_skip_it(self):
         elements = self.contact_form_fields()
         field = elements.get("postcodeField")

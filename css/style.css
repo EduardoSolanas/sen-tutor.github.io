@@ -658,6 +658,7 @@ body.dialog-open { overflow: hidden; }
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field label.tick > span { display: block; line-height: 1.25; }
+.field label.tick > span small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.35; }
 .field label.tick:hover { border-color: var(--grape); }
 .field label.tick:has(input:focus-visible) { border-color: var(--grape); box-shadow: 0 0 0 4px rgba(124, 108, 240, 0.18); }
 .field label.tick:has(input:checked) { border-color: var(--grape); background: var(--surface); }
