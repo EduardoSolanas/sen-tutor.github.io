@@ -668,6 +668,7 @@ body.dialog-open { overflow: hidden; }
 }
 
 .field .hint { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.35rem; }
+.form-price { margin: -0.2rem 0 1rem; font-family: var(--font-display); font-weight: 600; color: var(--grape-deep); }
 .form-privacy { margin: -0.2rem 0 1.3rem; color: var(--ink-soft); font-size: 0.88rem; }
 .form-status { margin-top: 1rem; font-weight: 600; min-height: 1.6rem; }
 .form-status.ok { color: var(--teal-deep); }
